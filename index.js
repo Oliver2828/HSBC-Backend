@@ -1,24 +1,34 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./dbconnect/dbconfig');
-
-
+const autoSeedUser = require('./seed/seedUsers'); // <-- Add this line
 
 const app = express();
-connectDB();
+
+// Connect to DB and seed user after connection
+connectDB().then(autoSeedUser).catch(err => {
+  console.error('DB connection or seeding failed:', err);
+});
 
 // Use environment variables for configuration
-const PORT = process.env.PORT || 5000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
-
-// CORS configuration
+const PORT = process.env.PORT || 5000;const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174'
+];
 app.use(cors({
-  origin: CLIENT_ORIGIN,
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
-  
+
+
 // Middleware to parse JSON
 app.use(express.json());
 
@@ -28,7 +38,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// === Add authentication routes here ===
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
+const transferRoutes = require('./routes/transferRoutes');
+app.use('/api/transfer', transferRoutes);
+
+// Sample Route
+app.get("/", (req, res) => {
+  res.send("HSBC Backend is running");
+});
 
 // Handle undefined routes (404)
 app.use((req, res, next) => {
@@ -39,11 +59,6 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ message: 'Server error.' });
-});
-
-// Sample Route
-app.get("/", (req, res) => {
-  res.send("HSBC Backend is running");
 });
 
 // Start the server
