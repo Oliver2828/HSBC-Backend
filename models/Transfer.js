@@ -6,6 +6,8 @@ const transferSchema = new mongoose.Schema(
     recipientName: { type: String, required: true },
     recipientAccount: { type: String, required: true },
     recipientBank: { type: String, required: true },
+    bankAddress: { type: String }, // <-- Added bank address
+    branchCode: { type: String }, // <-- Added branch code (optional)
     recipientRouting: { type: String }, // Optional for international transfers
     recipientSwift: { type: String }, // SWIFT/BIC code for international transfers
     recipientIban: { type: String }, // IBAN for international transfers
@@ -16,10 +18,10 @@ const transferSchema = new mongoose.Schema(
     transferDate: { type: Date, required: true },
     reference: { type: String },
     status: { type: String, enum: ['Pending', 'Approved', 'PendingVerification'], default: 'Pending' },
-    email: { type: String }, // <-- Add this line
-    verificationCode: { type: String }, // <-- Add this line
-    isVerified: { type: Boolean, default: false }, // <-- Add this line
-    approvedAt: { type: Date }, // <-- Optional: when approved
+    email: { type: String },
+    verificationCode: { type: String },
+    isVerified: { type: Boolean, default: false },
+    approvedAt: { type: Date },
   },
   { timestamps: true }
 );
