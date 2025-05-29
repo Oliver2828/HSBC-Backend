@@ -11,23 +11,15 @@ connectDB().then(autoSeedUser).catch(err => {
 });
 
 // Use environment variables for configuration
-const PORT = process.env.PORT || 5000;const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174'
-];
+const PORT = process.env.PORT || 5000;
+
+// Allow any origin for CORS
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Accept requests from any origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
-
 
 // Middleware to parse JSON
 app.use(express.json());
